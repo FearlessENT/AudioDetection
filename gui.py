@@ -71,10 +71,16 @@ class ProcessFolderFrame(ttk.Frame):
 
         tk.Button(self, text='Process Folder', command=self.process_folder_gui).grid(row=2, column=0)
 
-        # Add buffer input to the GUI
-        tk.Label(self, text='Buffer (in seconds):').grid(row=3)
-        self.buffer_entry = tk.Entry(self, width=50)
-        self.buffer_entry.grid(row=3, column=1)
+
+        # Add buffer input for before the timestamp
+        tk.Label(self, text='Buffer Before (in seconds):').grid(row=3)
+        self.buffer_before_entry = tk.Entry(self, width=50)
+        self.buffer_before_entry.grid(row=3, column=1)
+
+        # Add buffer input for after the timestamp
+        tk.Label(self, text='Buffer After (in seconds):').grid(row=4)
+        self.buffer_after_entry = tk.Entry(self, width=50)
+        self.buffer_after_entry.grid(row=4, column=1)
 
         self.load_folder_paths()
 
@@ -93,7 +99,8 @@ class ProcessFolderFrame(ttk.Frame):
     def process_folder_gui(self):
         directory = self.dir_entry.get()
         output_dir = self.output_dir_entry.get()
-        buffer_seconds = int(self.buffer_entry.get())
+        buffer_before_seconds = int(self.buffer_before_entry.get())
+        buffer_after_seconds = int(self.buffer_after_entry.get())
 
         if not directory or not output_dir:
             messagebox.showerror('Error', 'Please fill all the fields')
@@ -101,7 +108,7 @@ class ProcessFolderFrame(ttk.Frame):
             video_files = process_folder(directory, MODEL_FILE, output_dir)
             for video_file in video_files:
                 description = f"{video_file}"
-                job = Job(process_video, (video_file, MODEL_FILE, output_dir, buffer_seconds), description)
+                job = Job(process_video, (video_file, MODEL_FILE, output_dir, buffer_before_seconds, buffer_after_seconds), description)
                 job_queue.put(job)
             self.master.master.update_queue()
 
@@ -109,16 +116,21 @@ class ProcessFolderFrame(ttk.Frame):
         folder_paths = {
             'input_folder': self.dir_entry.get(),
             'output_folder': self.output_dir_entry.get(),
+            'buffer_before': self.buffer_before_entry.get(),
+            'buffer_after': self.buffer_after_entry.get()
         }
-        with open(pickle_path, 'wb') as f:
+        with open(self.pickle_path, 'wb') as f:
             pickle.dump(folder_paths, f)
 
     def load_folder_paths(self):
-        if os.path.exists(pickle_path):
-            with open(pickle_path, 'rb') as f:
+        if os.path.exists(self.pickle_path):
+            with open(self.pickle_path, 'rb') as f:
                 folder_paths = pickle.load(f)
                 self.dir_entry.insert(0, folder_paths.get('input_folder', ''))
                 self.output_dir_entry.insert(0, folder_paths.get('output_folder', ''))
+                self.buffer_before_entry.insert(0, folder_paths.get('buffer_before', '0'))
+                self.buffer_after_entry.insert(0, folder_paths.get('buffer_after', '0'))
+
 
 
 
@@ -154,10 +166,15 @@ class ProcessFileFrame(ttk.Frame):
 
         tk.Button(self, text='Process File', command=self.process_file_gui).grid(row=2, column=0)
 
-        # Add buffer input to the GUI
-        tk.Label(self, text='Buffer (in seconds):').grid(row=3)
-        self.buffer_entry = tk.Entry(self, width=50)
-        self.buffer_entry.grid(row=3, column=1)
+        # Add buffer input for before the timestamp
+        tk.Label(self, text='Buffer Before (in seconds):').grid(row=3)
+        self.buffer_before_entry = tk.Entry(self, width=50)
+        self.buffer_before_entry.grid(row=3, column=1)
+
+        # Add buffer input for after the timestamp
+        tk.Label(self, text='Buffer After (in seconds):').grid(row=4)
+        self.buffer_after_entry = tk.Entry(self, width=50)
+        self.buffer_after_entry.grid(row=4, column=1)
 
         self.load_folder_paths()
 
@@ -176,13 +193,14 @@ class ProcessFileFrame(ttk.Frame):
     def process_file_gui(self):
         file = self.file_entry.get()
         output_dir = self.output_dir_entry.get()
-        buffer_seconds = int(self.buffer_entry.get())
+        buffer_before_seconds = int(self.buffer_before_entry.get())
+        buffer_after_seconds = int(self.buffer_after_entry.get())
 
         if not file or not output_dir:
             messagebox.showerror('Error', 'Please fill all the fields')
         else:
             description = f"Processing file: {file}"
-            job = Job(process_video, (file, MODEL_FILE, output_dir, buffer_seconds), description)
+            job = Job(process_video, (file, MODEL_FILE, output_dir, buffer_before_seconds, buffer_after_seconds), description)
             job_queue.put(job)
             self.master.master.update_queue()
 
@@ -194,18 +212,24 @@ class ProcessFileFrame(ttk.Frame):
 
     def save_folder_paths(self):
         folder_paths = {
-            'input_folder': self.file_entry.get(),
+            'input_file': self.file_entry.get(),
             'output_folder': self.output_dir_entry.get(),
+            'buffer_before': self.buffer_before_entry.get(),
+            'buffer_after': self.buffer_after_entry.get()
         }
-        with open(pickle_path, 'wb') as f:
+        with open(self.pickle_path, 'wb') as f:
             pickle.dump(folder_paths, f)
 
+
     def load_folder_paths(self):
-        if os.path.exists(pickle_path):
-            with open(pickle_path, 'rb') as f:
+        if os.path.exists(self.pickle_path):
+            with open(self.pickle_path, 'rb') as f:
                 folder_paths = pickle.load(f)
-                self.file_entry.insert(0, folder_paths.get('input_folder', ''))
+                self.file_entry.insert(0, folder_paths.get('input_file', ''))
                 self.output_dir_entry.insert(0, folder_paths.get('output_folder', ''))
+                self.buffer_before_entry.insert(0, folder_paths.get('buffer_before', '0'))
+                self.buffer_after_entry.insert(0, folder_paths.get('buffer_after', '0'))
+
 
 
 
@@ -244,12 +268,17 @@ class DownloadAndProcessFrame(ttk.Frame):
         self.output_dir_entry.grid(row=1, column=1)
         tk.Button(self, text='Select Output Folder', command=self.select_output_directory).grid(row=1, column=2)
 
-        # Add buffer input to the GUI
-        tk.Label(self, text='Buffer (in seconds):').grid(row=2)
-        self.buffer_entry = tk.Entry(self, width=50)
-        self.buffer_entry.grid(row=2, column=1)
-
         tk.Button(self, text='Download & Process', command=self.download_and_process_gui).grid(row=3, column=0)
+
+        # Add buffer input for before the timestamp
+        tk.Label(self, text='Buffer Before (in seconds):').grid(row=4)
+        self.buffer_before_entry = tk.Entry(self, width=50)
+        self.buffer_before_entry.grid(row=4, column=1)
+
+        # Add buffer input for after the timestamp
+        tk.Label(self, text='Buffer After (in seconds):').grid(row=5)
+        self.buffer_after_entry = tk.Entry(self, width=50)
+        self.buffer_after_entry.grid(row=5, column=1)
 
 
     def select_output_directory(self):
@@ -261,28 +290,35 @@ class DownloadAndProcessFrame(ttk.Frame):
     def download_and_process_gui(self):
         url = self.url_entry.get()
         output_dir = self.output_dir_entry.get()
-        buffer_seconds = int(self.buffer_entry.get())
+        buffer_before_seconds = int(self.buffer_before_entry.get())
+        buffer_after_seconds = int(self.buffer_after_entry.get())
 
         if not url or not output_dir:
             messagebox.showerror('Error', 'Please fill all the fields')
         else:
             description = f"{url}"
-            job = Job(download_and_process, (url, MODEL_FILE, output_dir, buffer_seconds), description)
+            job = Job(download_and_process, (url, MODEL_FILE, output_dir, buffer_before_seconds, buffer_after_seconds), description)
             job_queue.put(job)
             self.master.master.update_queue()
 
     def save_folder_paths(self):
         folder_paths = {
             'output_folder': self.output_dir_entry.get(),
+            'buffer_before': self.buffer_before_entry.get(),
+            'buffer_after': self.buffer_after_entry.get()
         }
-        with open(pickle_path, 'wb') as f:
+        with open(self.pickle_path, 'wb') as f:
             pickle.dump(folder_paths, f)
 
+
     def load_folder_paths(self):
-        if os.path.exists(pickle_path):
-            with open(pickle_path, 'rb') as f:
+        if os.path.exists(self.pickle_path):
+            with open(self.pickle_path, 'rb') as f:
                 folder_paths = pickle.load(f)
                 self.output_dir_entry.insert(0, folder_paths.get('output_folder', ''))
+                self.buffer_before_entry.insert(0, folder_paths.get('buffer_before', '0'))
+                self.buffer_after_entry.insert(0, folder_paths.get('buffer_after', '0'))
+
 
 
 
