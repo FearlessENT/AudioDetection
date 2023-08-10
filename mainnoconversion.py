@@ -177,7 +177,7 @@ def decrement_timestamp(timestamp):
 
 
 
-def download_and_process(url, model_file, output_directory=None):
+def download_and_process(url, model_file, output_folder, buffer_before_seconds, buffer_after_seconds, output_file=None):
     # Download video
     download_video(url)
 
@@ -186,7 +186,7 @@ def download_and_process(url, model_file, output_directory=None):
     video_file = max(list_of_files, key=os.path.getctime)
 
     # Process video
-    process_video(video_file, model_file, output_directory)
+    process_video(video_file, model_file, output_directory, buffer_before_seconds, buffer_after_seconds)
 
 
 
