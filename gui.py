@@ -42,6 +42,7 @@ worker_thread.start()
 
 
 
+
 def process_folder(folder_path, model_file, output_directory=None):
     # Get all video files in the folder with supported extensions
     video_files = glob.glob(os.path.join(folder_path, '*.mp4'))
