@@ -291,6 +291,7 @@ class DownloadAndProcessFrame(ttk.Frame):
         self.temp_folder_button.grid(row = 6, column = 2)
 
         self.load_temp_folder_path()
+        self.load_folder_paths()
 
 
     def select_output_directory(self):
@@ -300,6 +301,7 @@ class DownloadAndProcessFrame(ttk.Frame):
         self.save_folder_paths()
 
     def download_and_process_gui(self):
+        self.save_folder_paths()
         url = self.url_entry.get()
         output_dir = self.output_dir_entry.get()
         buffer_before_seconds = int(self.buffer_before_entry.get())
