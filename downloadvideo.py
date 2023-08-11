@@ -2,8 +2,8 @@ from yt_dlp import YoutubeDL
 import os
 import time
 
-def download_video(url):
-    output_folder = "input"
+def download_video(url, temp_folder):
+    output_folder = temp_folder
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 

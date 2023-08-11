@@ -280,6 +280,18 @@ class DownloadAndProcessFrame(ttk.Frame):
         self.buffer_after_entry = tk.Entry(self, width=50)
         self.buffer_after_entry.grid(row=5, column=1)
 
+        # Temp Folder Selection
+        self.temp_folder_label = tk.Label(self, text="Temp Folder:")
+        self.temp_folder_label.grid(row = 6, column = 0)
+
+        self.temp_folder_entry = tk.Entry(self, width=50)
+        self.temp_folder_entry.grid(row = 6, column = 1)
+
+        self.temp_folder_button = tk.Button(self, text="Select Temp Folder", command=self.select_temp_folder)
+        self.temp_folder_button.grid(row = 6, column = 2)
+
+        self.load_temp_folder_path()
+
 
     def select_output_directory(self):
         directory = filedialog.askdirectory()
@@ -292,12 +304,13 @@ class DownloadAndProcessFrame(ttk.Frame):
         output_dir = self.output_dir_entry.get()
         buffer_before_seconds = int(self.buffer_before_entry.get())
         buffer_after_seconds = int(self.buffer_after_entry.get())
+        temp_folder = self.temp_folder_entry.get()
 
         if not url or not output_dir:
             messagebox.showerror('Error', 'Please fill all the fields')
         else:
             description = f"{url}"
-            job = Job(download_and_process, (url, MODEL_FILE, output_dir, buffer_before_seconds, buffer_after_seconds), description)
+            job = Job(download_and_process, (url, MODEL_FILE, output_dir, temp_folder, buffer_before_seconds, buffer_after_seconds), description)
             job_queue.put(job)
             self.master.master.update_queue()
 
@@ -318,6 +331,23 @@ class DownloadAndProcessFrame(ttk.Frame):
                 self.output_dir_entry.insert(0, folder_paths.get('output_folder', ''))
                 self.buffer_before_entry.insert(0, folder_paths.get('buffer_before', '0'))
                 self.buffer_after_entry.insert(0, folder_paths.get('buffer_after', '0'))
+
+
+    def select_temp_folder(self):
+        directory = filedialog.askdirectory()
+        self.temp_folder_entry.delete(0, tk.END)
+        self.temp_folder_entry.insert(0, directory)
+        self.save_temp_folder_path()
+
+    def save_temp_folder_path(self):
+        with open('temp_folder_path.pkl', 'wb') as f:
+            pickle.dump(self.temp_folder_entry.get(), f)
+
+    def load_temp_folder_path(self):
+        if os.path.exists('temp_folder_path.pkl'):
+            with open('temp_folder_path.pkl', 'rb') as f:
+                temp_folder_path = pickle.load(f)
+                self.temp_folder_entry.insert(0, temp_folder_path)
 
 
 
