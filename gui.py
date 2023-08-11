@@ -48,6 +48,7 @@ def process_folder(folder_path, model_file, output_directory=None):
     video_files = glob.glob(os.path.join(folder_path, '*.mp4'))
     video_files += glob.glob(os.path.join(folder_path, '*.ts'))
     video_files += glob.glob(os.path.join(folder_path, '*.mkv'))
+    video_files += glob.glob(os.path.join(folder_path, '*.avi'))
 
     return video_files
 
@@ -105,7 +106,7 @@ class ProcessFolderFrame(ttk.Frame):
         if not directory or not output_dir:
             messagebox.showerror('Error', 'Please fill all the fields')
         else:
-            video_files = process_folder(directory, MODEL_FILE, output_dir)
+            video_files = process_folder(directory, MODEL_FILE, output_dir) 
             for video_file in video_files:
                 description = f"{video_file}"
                 job = Job(process_video, (video_file, MODEL_FILE, output_dir, buffer_before_seconds, buffer_after_seconds), description)
