@@ -11,7 +11,7 @@ import glob
 from mainnoconversion import process_folder, process_video, download_and_process
 
 pickle_path = 'folder_paths.pkl'
-MODEL_FILE = 'bdetectionmodel_05_01_23.onnx'
+MODEL_FILE = 'E:\\bdetectionmodel_05_01_23.onnx'
 
 class Job:
     def __init__(self, func, args, description):
