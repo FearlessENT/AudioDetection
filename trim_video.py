@@ -46,6 +46,9 @@ def process_video(filename, timestamps, output_directory=None):
         start_seconds = convert_timestamp_to_seconds(start)
         end_seconds = convert_timestamp_to_seconds(end)
 
+        if start_seconds >= video_clip.duration or end_seconds > video_clip.duration:
+            continue
+
         # Create subclip and add to clips list
         clips.append(video_clip.subclip(start_seconds, end_seconds))
 
