@@ -19,6 +19,9 @@ def batch_convert_mp3_to_aac(input_folder, output_folder):
                 output_path = os.path.join(output_folder, os.path.splitext(file)[0] + ".m4a")
                 convert_mp3_to_aac(input_path, output_path)
 
+
+                
+
 if __name__ == "__main__":
     input_folder = "E:\AA Temp\music"
     output_folder = "E:\AA Temp\music\output"
